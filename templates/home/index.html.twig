@@ -10,4 +10,10 @@
 
 <a href="{{ path('login') }}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold uppercase rounded">Se connecter</a>
 
+{% if app.user %}
+<a href="{{ path('app_book_new') }}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold uppercase rounded">Ajouter un produit</a>
+{% else %}
+  <p>Vous devez être connecté pour ajouter un produit.</p>
+{% endif %}
+
 {% endblock %}

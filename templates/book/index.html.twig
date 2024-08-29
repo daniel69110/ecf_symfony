@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{# {% block title %}Book index{% endblock %}
+
+{% block body %}
+    <h1>Book index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>DatePublished</th>
+             
+                
+            </tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td>{{ book.title }}</td>
+                
+                <td>{{ book.description }}</td>
+                <td>{{ book.datePublished ? book.datePublished|date('Y-m-d H:i:s') : '' }}</td>
+
+                <td>
+                    
+
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_book_new') }}">Create new</a>
+{% endblock %} #}
+{% block title %}Book index{% endblock %}
+
+{% block body %}
+    <h1>Book index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>DatePublished</th>
+                <th>Authors</th>  {# Nouvelle colonne pour les auteurs #}
+                <th>Actions</th>   {# Colonne pour les actions (Edit, Delete) #}
+            </tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.description }}</td>
+                <td>{{ book.datePublished ? book.datePublished|date('Y-m-d H:i:s') : '' }}</td>
+
+                <td>
+                    {# Affichage des auteurs #}
+                    {% if book.autors|length > 0 %}
+                        <ul>
+                            {% for autor in book.autors %}
+                                <li>{{ autor.name }}</li> {# Assurez-vous que 'name' est le bon champ pour le nom de l'auteur #}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        No authors
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="{{ path('app_book_edit', { id: book.id }) }}" class="btn btn-primary">Edit</a>
+
+                    <form action="{{ path('app_book_delete', { id: book.id }) }}" method="post" style="display:inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ book.id) }}">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this book?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">No records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_book_new') }}" class="btn btn-success">Create new</a>
+{% endblock %}
