@@ -31,22 +31,19 @@ class Book
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateUpdated = null;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'Book')]
-    private Collection $users;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'books')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     /**
      * @var Collection<int, Autor>
      */
     #[ORM\ManyToMany(targetEntity: Autor::class, inversedBy: 'books')]
-    private Collection $Autor;
+    private Collection $autors;
 
     public function __construct()
     {
-        $this->users = new ArrayCollection();
-        $this->Autor = new ArrayCollection();
+        $this->autors = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,7 +59,6 @@ class Book
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -74,7 +70,6 @@ class Book
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -86,7 +81,6 @@ class Book
     public function setDatePublished(\DateTimeInterface $datePublished): static
     {
         $this->datePublished = $datePublished;
-
         return $this;
     }
 
@@ -98,7 +92,6 @@ class Book
     public function setDateCreated(\DateTimeInterface $dateCreated): static
     {
         $this->dateCreated = $dateCreated;
-
         return $this;
     }
 
@@ -110,58 +103,39 @@ class Book
     public function setDateUpdated(\DateTimeInterface $dateUpdated): static
     {
         $this->dateUpdated = $dateUpdated;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUsers(): Collection
+    public function getUser(): ?User
     {
-        return $this->users;
+        return $this->user;
     }
 
-    public function addUser(User $user): static
+    public function setUser(?User $user): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->addBook($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            $user->removeBook($this);
-        }
-
+        $this->user = $user;
         return $this;
     }
 
     /**
      * @return Collection<int, Autor>
      */
-    public function getAutor(): Collection
+    public function getAutors(): Collection
     {
-        return $this->Autor;
+        return $this->autors;
     }
 
     public function addAutor(Autor $autor): static
     {
-        if (!$this->Autor->contains($autor)) {
-            $this->Autor->add($autor);
+        if (!$this->autors->contains($autor)) {
+            $this->autors->add($autor);
         }
-
         return $this;
     }
 
     public function removeAutor(Autor $autor): static
     {
-        $this->Autor->removeElement($autor);
-
+        $this->autors->removeElement($autor);
         return $this;
     }
 }

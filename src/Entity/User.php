@@ -24,15 +24,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
@@ -45,12 +39,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Book>
      */
-    #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'users')]
-    private Collection $Book;
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Book::class, orphanRemoval: true)]
+    private Collection $books;
 
     public function __construct()
     {
-        $this->Book = new ArrayCollection();
+        $this->books = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -70,33 +64,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -104,9 +84,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -119,13 +96,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 
     public function getDateCreated(): ?\DateTimeInterface
@@ -155,15 +127,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Book>
      */
-    public function getBook(): Collection
+    public function getBooks(): Collection
     {
-        return $this->Book;
+        return $this->books;
     }
 
     public function addBook(Book $book): static
     {
-        if (!$this->Book->contains($book)) {
-            $this->Book->add($book);
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
+            $book->setUser($this);
         }
 
         return $this;
@@ -171,8 +144,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeBook(Book $book): static
     {
-        $this->Book->removeElement($book);
+        if ($this->books->removeElement($book)) {
+            if ($book->getUser() === $this) {
+                $book->setUser(null);
+            }
+        }
 
         return $this;
     }
 }
+
